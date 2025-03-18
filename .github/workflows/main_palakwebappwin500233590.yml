@@ -1,7 +1,5 @@
-# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
-# More GitHub Actions for Azure: https://github.com/Azure/actions
-
-name: Build and deploy ASP.Net Core app to Azure Web App - PalakWebAppWin500233590
+# GitHub Actions for Azure Web Apps
+name: Build and deploy ASP.NET Core to Azure - PalakWebAppWin500233590
 
 on:
   push:
@@ -13,7 +11,7 @@ jobs:
   build:
     runs-on: windows-latest
     permissions:
-      contents: read #This is required for actions/checkout
+      contents: read
 
     steps:
       - uses: actions/checkout@v4
@@ -23,17 +21,20 @@ jobs:
         with:
           dotnet-version: '8.x'
 
-      - name: Build with dotnet
-        run: dotnet build --configuration Release
+      - name: Restore dependencies
+        run: dotnet restore
 
-      - name: dotnet publish
-        run: dotnet publish -c Release -o "${{env.DOTNET_ROOT}}/myapp"
+      - name: Build project
+        run: dotnet build --no-restore --configuration Release
 
-      - name: Upload artifact for deployment job
+      - name: Publish project
+        run: dotnet publish --no-build -c Release -o ./published-app
+
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: .net-app
-          path: ${{env.DOTNET_ROOT}}/myapp
+          path: ./published-app
 
   deploy:
     runs-on: windows-latest
@@ -42,27 +43,26 @@ jobs:
       name: 'Production'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
     permissions:
-      id-token: write #This is required for requesting the JWT
-      contents: read #This is required for actions/checkout
+      id-token: write
+      contents: read
 
     steps:
-      - name: Download artifact from build job
+      - name: Download artifact
         uses: actions/download-artifact@v4
         with:
           name: .net-app
-      
-      - name: Login to Azure
+
+      - name: Azure Login
         uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_023E875BCE214F77AAA4714A7888CF67 }}
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_8B6474DB636E442ABE1C4440A5C9FD2E }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_2800A0ED8B95419190431344DE4510F6 }}
 
-      - name: Deploy to Azure Web App
+      - name: Deploy to Azure
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
           app-name: 'PalakWebAppWin500233590'
           slot-name: 'Production'
           package: .
-          
