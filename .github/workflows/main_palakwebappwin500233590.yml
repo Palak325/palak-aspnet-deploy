@@ -1,4 +1,5 @@
- name: Build and deploy ASP.NET Core to Azure - PalakWebAppWin500233590
+  # GitHub Actions for Azure Web Apps
+name: Build and deploy ASP.NET Core to Azure - PalakWebAppWin500233590
 
 on:
   push:
@@ -21,13 +22,13 @@ jobs:
           dotnet-version: '8.x'
 
       - name: Restore dependencies
-        run: dotnet restore ./MyAspNetApp.csproj  # explicitly specify .csproj
+        run: dotnet restore
 
       - name: Build project
-        run: dotnet build ./MyAspNetApp.csproj --no-restore --configuration Release
+        run: dotnet build --no-restore --configuration Release
 
       - name: Publish project
-        run: dotnet publish ./MyAspNetApp.csproj --no-build -c Release -o ./published-app
+        run: dotnet publish --no-build -c Release -o ./published-app
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
